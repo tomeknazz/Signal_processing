@@ -32,3 +32,4 @@
 *.exe
 *.out
 *.app
+/out/build/x64-debug/Testing/Temporary/LastTest.log
