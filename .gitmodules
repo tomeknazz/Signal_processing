@@ -1,6 +1,0 @@
-[submodule "pybind"]
-	path = pybind
-	url = https://github.com/pybind/pybind11
-[submodule "matplot"]
-	path = matplot
-	url = https://github.com/alandefreitas/matplotplusplus
