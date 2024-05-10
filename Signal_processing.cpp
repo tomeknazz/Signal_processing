@@ -11,57 +11,48 @@ float add(float i, float j) {
     return i + j;
 }
 
-std::vector<std::complex<double>> dft(const std::vector<double>& x) {
-    int N = x.size();
-    std::vector<std::complex<double>> X(N, { 0.0, 0.0 }); // Wynikowa transformata
+using namespace std;
+//spectrum - liczba zespolona ofc ;)) jutro do dokoncze raczej
 
+
+vector<double> dft(const vector<double>& x) 
+{
+    int N = x.size();
+    vector<double> spectrum(N, 0.0);
     for (int k = 0; k < N; ++k) {
+        complex<double> sum{ 0.0, 0.0 };
         for (int n = 0; n < N; ++n) {
             double angle = -2.0 * M_PI * k * n / N;
-            std::complex<double> exp_term(std::cos(angle), std::sin(angle));
-            X[k] += x[n] * exp_term;
+            std::complex<double> exp_term(cos(angle),sin(angle));
+            sum += x[n] * exp_term;
         }
+        spectrum[k] = abs(sum); 
     }
 
-    return X;
+    return spectrum;
 }
 
-void plot_complex(const std::vector<std::complex<double>>& data) {
+void plot_spectrum(const std::vector<double>& spectrum) {
     using namespace matplot;
-
-    std::vector<double> real_part, imag_part;
-    for (const auto& val : data) {
-        real_part.push_back(val.real());
-        imag_part.push_back(val.imag());
-    }
-
-    auto t = linspace(0, real_part.size() - 1, real_part.size());
-
-    subplot(2, 1, 1);
-    plot(t, real_part);
-    title("Real Part");
-
-    subplot(2, 1, 2);
-    plot(t, imag_part);
-    title("Imaginary Part");
-
+    auto N = spectrum.size();
+    auto f = linspace(0, 0.5, N); // Wektor częstotliwości
+    plot(f, spectrum);
+    xlabel("Frequency");
+    ylabel("Amplitude");
+    title("Amplitude Spectrum");
     show();
 }
 
-void sin_transform_plot(double freq, double time)
+void sin_transform_plot(double amplitude, double freq, double time)
 {
     using namespace matplot;
-    auto t = linspace(0, time, 1000); // Generowanie wektora czasu
-    std::vector<double> y_values; // Wektor przechowujący wartości sygnału
+    auto t = linspace(0, time, 1000); 
+    vector<double> y_values; 
     for (auto x : t) {
-        y_values.push_back(sin(2 * M_PI * freq * x));
+        y_values.push_back(amplitude * sin(2 * M_PI * freq * x));
     }
-
-    // Obliczanie wyniku DFT
-    auto dft_result = dft(y_values);
-
-    // Rysowanie wykresu po przekształceniu DFT
-    plot_complex(dft_result);
+    auto spectrum = dft(y_values);
+    plot_spectrum(spectrum);
 }
 
 void test_plot()
@@ -83,5 +74,5 @@ PYBIND11_MODULE(Signal, m)
     m.doc() = "Signal processing";
     m.def("add", &add, "A function which adds two numbers");
     m.def("test_plot", &test_plot, "test");
-    m.def("sin_transform_plot", &sin_transform_plot, "zmiana sygnalu sinusxd");
+    m.def("sin_transform_plot", &sin_transform_plot, "zmiana sygnalu dft");
 }
