@@ -8,11 +8,38 @@
 #include <iostream>
 
 
+
+using namespace std;
+using namespace matplot;
+
+void inverse_dft(const vector<complex<double>>& spectrum, vector<double> time)
+{
+	int N = spectrum.size();
+	vector<double> signal;
+	signal.resize(N);
+
+	for (int n = 0; n < N; ++n)
+	{
+		complex<double> sum(0.0, 0.0);
+		for (int k = 0; k < N; ++k)
+		{
+			sum += spectrum[k] * exp(2.0 * pi * complex<double>(0, 1) * static_cast<double>(n * k) / static_cast<double>(N));
+		}
+		signal[n] = sum.real();
+	}
+	figure();
+	plot(time, signal);
+	title("Inverse DFT Signal");
+	xlabel("Time");
+	ylabel("Amplitude");
+	show();
+}
+
 void sin_transform_plot(double amplitude, double frequency)
 {
 	using namespace matplot;
 	using namespace std;
-	int N = 5000;
+	int N = 1000;
 	double duration = 2 * pi;
 	double sampling_rate = N / duration;
 
@@ -22,7 +49,7 @@ void sin_transform_plot(double amplitude, double frequency)
 		time.push_back(i / sampling_rate);
 	}
 
-	vector<double> signal; // wartoúci sinusa
+	vector<double> signal; // warto≈ìci sinusa
 	for (int i = 0; i < time.size(); ++i)
 	{
 		double t = time[i];
@@ -57,10 +84,9 @@ void sin_transform_plot(double amplitude, double frequency)
 	title("DFT Results");
 	xlabel("Frequency (Hz)");
 	ylabel("Magnitude");
-
 	show();
+	inverse_dft(dft_result, time);
 }
-
 
 void square_wave(double amplitude, double frequency) {
 	using namespace matplot;
@@ -90,13 +116,12 @@ void square_wave(double amplitude, double frequency) {
 	show();
 }
 
-
 void sawtooth_wave(double amplitude, double frequency)
 {
 	using namespace matplot;
 
 	auto X = linspace(0, 3, 5000);
-	auto Y = transform(X, [frequency, amplitude](double x) { return amplitude*(2*(x*frequency-floor(1/2+x*frequency))-1); });
+	auto Y = transform(X, [frequency, amplitude](double x) { return amplitude * (2 * (x * frequency - floor(1 / 2 + x * frequency)) - 1); });
 	plot(X, Y);
 
 	auto ax = gca();
@@ -111,7 +136,7 @@ void sawtooth_wave(double amplitude, double frequency)
 PYBIND11_MODULE(Signal, m)
 {
 	m.doc() = "Signal processing";
-	m.def("sin_transform_plot", &sin_transform_plot, "Transforms and plots sinusoidal signal using DFT");
+	m.def("DFT", &sin_transform_plot, "Transforms and plots sinusoidal signal using DFT");
 	m.def("square_wave", &square_wave, "Plots square wave signal");
 	m.def("sawtooth_wave", &sawtooth_wave, "Plots sawtooth wave signal");
 }
