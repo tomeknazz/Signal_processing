@@ -10,62 +10,62 @@
 
 void sin_transform_plot(double amplitude, double frequency)
 {
-    using namespace matplot;
-    using namespace std;
-    int N = 1000;
-    double duration = 2 * pi;
-    double sampling_rate = N / duration;
+	using namespace matplot;
+	using namespace std;
+	int N = 5000;
+	double duration = 2 * pi;
+	double sampling_rate = N / duration;
 
-    vector<double> time;
-    for (int i = 0; i < N; ++i) 
-    {
-        time.push_back(i / sampling_rate);
-    }
+	vector<double> time;
+	for (int i = 0; i < N; ++i)
+	{
+		time.push_back(i / sampling_rate);
+	}
 
-    vector<double> signal; // wartoœci sinusa
-    for (int i = 0; i < time.size(); ++i) 
-    {
-        double t = time[i];
-        signal.push_back(amplitude * sin(2 * pi * frequency * t));
-    }
+	vector<double> signal; // wartoœci sinusa
+	for (int i = 0; i < time.size(); ++i)
+	{
+		double t = time[i];
+		signal.push_back(amplitude * sin(2 * pi * frequency * t));
+	}
 
-    vector<complex<double>> dft_result; // tutaj obliczam DFT
-    for (int k = 0; k < N; ++k)
-    {
-        complex<double> sum(0.0, 0.0);
-        for (int n = 0; n < N; ++n)
-        {
-            sum += signal[n] * exp(-2.0 * pi * complex<double>(0, 1) * static_cast<double>(n * k) / static_cast<double>(N));
-        }
-        dft_result.push_back(sum / static_cast<double>(N));
-    }
+	vector<complex<double>> dft_result; // tutaj obliczam DFT
+	for (int k = 0; k < N; ++k)
+	{
+		complex<double> sum(0.0, 0.0);
+		for (int n = 0; n < N; ++n)
+		{
+			sum += signal[n] * exp(-2.0 * pi * complex<double>(0, 1) * static_cast<double>(n * k) / static_cast<double>(N));
+		}
+		dft_result.push_back(sum / static_cast<double>(N));
+	}
 
-    vector<double> frequencies;
-    for (int k = 0; k < N; ++k)
-    {
-        double freq = static_cast<double>(k) * sampling_rate / N;
-        frequencies.push_back(freq);
-    }
+	vector<double> frequencies;
+	for (int k = 0; k < N; ++k)
+	{
+		double freq = static_cast<double>(k) * sampling_rate / N;
+		frequencies.push_back(freq);
+	}
 
-    vector<double> magnitude;
-    for (int k = 0; k < N; ++k) 
-    {
-        magnitude.push_back(abs(dft_result[k]) * 2);
-    }
+	vector<double> magnitude;
+	for (int k = 0; k < N; ++k)
+	{
+		magnitude.push_back(abs(dft_result[k]) * 2);
+	}
 
-    plot(frequencies, magnitude);
-    title("DFT Results");
-    xlabel("Frequency (Hz)");
-    ylabel("Magnitude");
+	plot(frequencies, magnitude);
+	title("DFT Results");
+	xlabel("Frequency (Hz)");
+	ylabel("Magnitude");
 
-    show();
+	show();
 }
 
 
 void square_wave(double amplitude, double frequency) {
 	using namespace matplot;
 
-	auto X = linspace(0, 3, 1000);
+	auto X = linspace(0, 3, 5000);
 	std::vector<std::vector<double>> Y(2);
 	Y[0] = transform(X, [frequency](double x) { return sin(2 * pi * frequency * x); });
 
@@ -91,9 +91,27 @@ void square_wave(double amplitude, double frequency) {
 }
 
 
+void sawtooth_wave(double amplitude, double frequency)
+{
+	using namespace matplot;
+
+	auto X = linspace(0, 3, 5000);
+	auto Y = transform(X, [frequency, amplitude](double x) { return amplitude*(2*(x*frequency-floor(1/2+x*frequency))-1); });
+	plot(X, Y);
+
+	auto ax = gca();
+	double ylim_min = *std::min_element(Y.begin(), Y.end()) - 0.5;
+	double ylim_max = *std::max_element(Y.begin(), Y.end()) + 0.5;
+	ax->ylim({ ylim_min, ylim_max });
+
+	show();
+
+}
+
 PYBIND11_MODULE(Signal, m)
 {
 	m.doc() = "Signal processing";
 	m.def("sin_transform_plot", &sin_transform_plot, "Transforms and plots sinusoidal signal using DFT");
 	m.def("square_wave", &square_wave, "Plots square wave signal");
+	m.def("sawtooth_wave", &sawtooth_wave, "Plots sawtooth wave signal");
 }

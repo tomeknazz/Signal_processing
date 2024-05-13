@@ -48,3 +48,4 @@ out/build/x64-debug/.ninja_log
 /out/build/x64-debug/CMakeFiles
 /out/build/x64-debug/matplotplusplus
 /out/build/x64-debug/pybind11
+/out/build/x64-debug/.cmake

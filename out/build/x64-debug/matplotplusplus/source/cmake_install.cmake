@@ -1,8 +1,8 @@
-# Install script for directory: C:/Users/Pc/source/repos/Signal_processing1/matplotplusplus/source
+# Install script for directory: C:/Users/tomek/Desktop/Studia/Podstawy Programowania/Signal_processing/matplotplusplus/source
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/Users/Pc/source/repos/Signal_processing1/out/install/x64-debug")
+  set(CMAKE_INSTALL_PREFIX "C:/Users/tomek/Desktop/Studia/Podstawy Programowania/Signal_processing/out/install/x64-debug")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -34,11 +34,11 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("C:/Users/Pc/source/repos/Signal_processing1/out/build/x64-debug/matplotplusplus/source/3rd_party/cmake_install.cmake")
+  include("C:/Users/tomek/Desktop/Studia/Podstawy Programowania/Signal_processing/out/build/x64-debug/matplotplusplus/source/3rd_party/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("C:/Users/Pc/source/repos/Signal_processing1/out/build/x64-debug/matplotplusplus/source/matplot/cmake_install.cmake")
+  include("C:/Users/tomek/Desktop/Studia/Podstawy Programowania/Signal_processing/out/build/x64-debug/matplotplusplus/source/matplot/cmake_install.cmake")
 endif()
 
