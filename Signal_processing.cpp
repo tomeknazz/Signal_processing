@@ -1,4 +1,4 @@
-﻿#include "pybind11/pybind11.h"
+#include "pybind11/pybind11.h"
 #include <matplot/matplot.h>
 #include <cmath>
 #include <pybind11/numpy.h>
@@ -22,7 +22,7 @@ void sin_transform_plot(double amplitude, double frequency)
         time.push_back(i / sampling_rate);
     }
 
-    vector<double> signal; // wartości sinusa
+    vector<double> signal; // warto�ci sinusa
     for (int i = 0; i < time.size(); ++i) 
     {
         double t = time[i];
