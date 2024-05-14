@@ -4,11 +4,47 @@
 #include <complex>
 #include <vector>
 #include <iostream>
+#include <random>
+
 using namespace std;
 using namespace matplot;
 
 constexpr double plot_x_size = 3.0;
 constexpr int samples = 5000;
+
+void peak_in_signal()
+{
+	srand(time(NULL));
+	double amplitude = rand() % 1000 + 1;
+	double duration = 2 * pi;
+	double sampling_rate = samples / duration;
+
+	random_device rd;
+	mt19937 gen(rd());
+	normal_distribution<> distribution(0, 1); // Szum
+	vector<double> time(samples);
+	vector<double> signal(samples);
+
+	for (int i = 0; i < samples; ++i)
+	{
+		time[i] = i / sampling_rate;
+		signal[i] = distribution(gen) * amplitude;
+	}
+	plot(time, signal);
+	show();
+
+	double peak_value = signal[0]; 
+	size_t peak_index = 0;
+	for (size_t i = 1; i < signal.size(); ++i)
+	{
+		if (signal[i] > peak_value)
+		{
+			peak_value = signal[i];
+			peak_index = i;
+		}
+	}
+	cout << "peak value is :" << peak_value << endl;
+}
 
 void inverse_dft(const vector<complex<double>>& spectrum, vector<double> time)
 {
@@ -168,4 +204,5 @@ PYBIND11_MODULE(Signal, m)
 	m.def("sawtooth_wave", &sawtooth_wave, "Plots sawtooth wave signal");
 	m.def("sin_wave", &sin_wave, "Plots sin wave signal");
 	m.def("cos_wave", &cos_wave, "Plots cos wave signal");
+	m.def("peak", &peak_in_signal, "Plots cos wave signal");
 }
