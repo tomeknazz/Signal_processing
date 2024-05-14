@@ -1,7 +1,8 @@
 import sys
 sys.path.append('out/build/x64-debug')
-import Signal
+import Signal as s
 
 
-#Signal.square_wave(1.0, 4.0)
-Signal.sin_transform_plot(1000.0, 50.0)
+#s.square_wave(1.0, 4.0)
+s.DFT(10.0, 1.0)
+#s.sin_wave(1.0, 4.0)

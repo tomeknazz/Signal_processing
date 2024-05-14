@@ -1,14 +1,14 @@
 #include "pybind11/pybind11.h"
 #include <matplot/matplot.h>
 #include <cmath>
-#include <pybind11/numpy.h>
 #include <complex>
 #include <vector>
-#include <string>
 #include <iostream>
 using namespace std;
 using namespace matplot;
 
+constexpr double plot_x_size = 3.0;
+constexpr int samples = 5000;
 
 void inverse_dft(const vector<complex<double>>& spectrum, vector<double> time)
 {
@@ -33,7 +33,7 @@ void inverse_dft(const vector<complex<double>>& spectrum, vector<double> time)
 	show();
 }
 
-void dft(double amplitude, double frequency, const vector<double>& signal, const vector<double>& time,double sampling_rate)
+void dft(const vector<double>& signal, const vector<double>& time, double sampling_rate)
 {
 	using namespace matplot;
 	using namespace std;
@@ -73,12 +73,11 @@ void dft(double amplitude, double frequency, const vector<double>& signal, const
 
 void create_signal_for_dft(double amplitude, double frequency)
 {
-	int N = 1000;
 	double duration = 2 * pi;
-	double sampling_rate = N / duration;
+	double sampling_rate = samples / duration;
 
 	vector<double> time;
-	for (int i = 0; i < N; ++i)
+	for (int i = 0; i < samples; ++i)
 	{
 		time.push_back(i / sampling_rate);
 	}
@@ -90,13 +89,13 @@ void create_signal_for_dft(double amplitude, double frequency)
 		signal.push_back(amplitude * cos(2 * pi * frequency * t));
 	}
 
-	dft(amplitude, frequency, signal, time, sampling_rate);
+	dft(signal, time, sampling_rate);
 }
 
 void square_wave(double amplitude, double frequency) {
-	using namespace matplot;
 
-	auto X = linspace(0, 3, 5000);
+
+	auto X = linspace(0, plot_x_size, samples);
 	std::vector<std::vector<double>> Y(2);
 	Y[0] = transform(X, [frequency](double x) { return sin(2 * pi * frequency * x); });
 
@@ -115,17 +114,12 @@ void square_wave(double amplitude, double frequency) {
 	double ylim_max = *std::max_element(Y[0].begin(), Y[0].end()) + 0.5;
 	ax->ylim({ ylim_min, ylim_max });
 
-	ax->x_axis().ticklabels({ "0", "pi/4", "pi/2", "3pi/4", "pi" });
-
-
 	show();
 }
 
 void sawtooth_wave(double amplitude, double frequency)
 {
-	using namespace matplot;
-
-	auto X = linspace(0, 3, 5000);
+	auto X = linspace(0, plot_x_size, samples);
 	auto Y = transform(X, [frequency, amplitude](double x) { return amplitude * (2 * (x * frequency - floor(1 / 2 + x * frequency)) - 1); });
 	plot(X, Y);
 
@@ -138,10 +132,40 @@ void sawtooth_wave(double amplitude, double frequency)
 
 }
 
+void sin_wave(double amplitude, double frequency)
+{
+	auto X = linspace(0, plot_x_size, samples);
+	auto Y = transform(X, [frequency, amplitude](double x) { return amplitude * sin(2 * pi * frequency * x); });
+	plot(X, Y);
+
+	auto ax = gca();
+	double ylim_min = *std::min_element(Y.begin(), Y.end()) - 0.5;
+	double ylim_max = *std::max_element(Y.begin(), Y.end()) + 0.5;
+	ax->ylim({ ylim_min, ylim_max });
+
+	show();
+}
+
+void cos_wave(double amplitude, double frequency)
+{
+	auto X = linspace(0, plot_x_size, samples);
+	auto Y = transform(X, [frequency, amplitude](double x) { return amplitude * cos(2 * pi * frequency * x); });
+	plot(X, Y);
+
+	auto ax = gca();
+	double ylim_min = *std::min_element(Y.begin(), Y.end()) - 0.5;
+	double ylim_max = *std::max_element(Y.begin(), Y.end()) + 0.5;
+	ax->ylim({ ylim_min, ylim_max });
+
+	show();
+}
+
 PYBIND11_MODULE(Signal, m)
 {
 	m.doc() = "Signal processing";
 	m.def("DFT", &create_signal_for_dft, "Transforms and plots sinusoidal signal using DFT");
 	m.def("square_wave", &square_wave, "Plots square wave signal");
 	m.def("sawtooth_wave", &sawtooth_wave, "Plots sawtooth wave signal");
+	m.def("sin_wave", &sin_wave, "Plots sin wave signal");
+	m.def("cos_wave", &cos_wave, "Plots cos wave signal");
 }
