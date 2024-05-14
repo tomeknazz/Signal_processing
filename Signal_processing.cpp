@@ -6,11 +6,9 @@
 #include <vector>
 #include <string>
 #include <iostream>
-
-
-
 using namespace std;
 using namespace matplot;
+
 
 void inverse_dft(const vector<complex<double>>& spectrum, vector<double> time)
 {
@@ -35,26 +33,11 @@ void inverse_dft(const vector<complex<double>>& spectrum, vector<double> time)
 	show();
 }
 
-void sin_transform_plot(double amplitude, double frequency)
+void dft(double amplitude, double frequency, const vector<double>& signal, const vector<double>& time,double sampling_rate)
 {
 	using namespace matplot;
 	using namespace std;
-	int N = 1000;
-	double duration = 2 * pi;
-	double sampling_rate = N / duration;
-
-	vector<double> time;
-	for (int i = 0; i < N; ++i)
-	{
-		time.push_back(i / sampling_rate);
-	}
-
-	vector<double> signal;
-	for (int i = 0; i < time.size(); ++i)
-	{
-		double t = time[i];
-		signal.push_back(amplitude * cos(2 * pi * frequency * t));
-	}
+	int N = signal.size();
 
 	vector<complex<double>> dft_result;
 	for (int k = 0; k < N; ++k)
@@ -86,6 +69,28 @@ void sin_transform_plot(double amplitude, double frequency)
 	ylabel("Magnitude");
 	show();
 	inverse_dft(dft_result, time);
+}
+
+void create_signal_for_dft(double amplitude, double frequency)
+{
+	int N = 1000;
+	double duration = 2 * pi;
+	double sampling_rate = N / duration;
+
+	vector<double> time;
+	for (int i = 0; i < N; ++i)
+	{
+		time.push_back(i / sampling_rate);
+	}
+
+	vector<double> signal;
+	for (int i = 0; i < time.size(); ++i)
+	{
+		double t = time[i];
+		signal.push_back(amplitude * cos(2 * pi * frequency * t));
+	}
+
+	dft(amplitude, frequency, signal, time, sampling_rate);
 }
 
 void square_wave(double amplitude, double frequency) {
@@ -136,7 +141,7 @@ void sawtooth_wave(double amplitude, double frequency)
 PYBIND11_MODULE(Signal, m)
 {
 	m.doc() = "Signal processing";
-	m.def("DFT", &sin_transform_plot, "Transforms and plots sinusoidal signal using DFT");
+	m.def("DFT", &create_signal_for_dft, "Transforms and plots sinusoidal signal using DFT");
 	m.def("square_wave", &square_wave, "Plots square wave signal");
 	m.def("sawtooth_wave", &sawtooth_wave, "Plots sawtooth wave signal");
 }
