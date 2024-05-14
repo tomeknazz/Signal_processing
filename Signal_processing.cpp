@@ -49,14 +49,14 @@ void sin_transform_plot(double amplitude, double frequency)
 		time.push_back(i / sampling_rate);
 	}
 
-	vector<double> signal; // wartoœci sinusa
+	vector<double> signal;
 	for (int i = 0; i < time.size(); ++i)
 	{
 		double t = time[i];
-		signal.push_back(amplitude * sin(2 * pi * frequency * t));
+		signal.push_back(amplitude * cos(2 * pi * frequency * t));
 	}
 
-	vector<complex<double>> dft_result; // tutaj obliczam DFT
+	vector<complex<double>> dft_result;
 	for (int k = 0; k < N; ++k)
 	{
 		complex<double> sum(0.0, 0.0);
@@ -77,7 +77,7 @@ void sin_transform_plot(double amplitude, double frequency)
 	vector<double> magnitude;
 	for (int k = 0; k < N; ++k)
 	{
-		magnitude.push_back(abs(dft_result[k]) * 2);
+		magnitude.push_back(abs(dft_result[k]) * 2.02);
 	}
 
 	plot(frequencies, magnitude);
