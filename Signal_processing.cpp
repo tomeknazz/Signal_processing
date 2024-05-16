@@ -1,4 +1,5 @@
 #include "pybind11/pybind11.h"
+#include <pybind11/stl.h>
 #include <matplot/matplot.h>
 #include <cmath>
 #include <complex>
@@ -10,7 +11,7 @@ using namespace std;
 using namespace matplot;
 
 constexpr double plot_x_size = 3.0;
-constexpr int samples = 5000;
+constexpr int samples = 6000;
 
 void peak_in_signal(const vector<double>& signal)
 {
@@ -111,6 +112,25 @@ void dft(const vector<double>& signal, const vector<double>& time, double sampli
 	inverse_dft(dft_result, time);
 }
 
+void plot_function(const vector<double>& x, const vector<double>& y)
+{
+	figure();
+	plot(x, y);
+	auto ax = gca();
+	double ylim_min = *std::min_element(y.begin(), y.end()) - 0.5;
+	double ylim_max = *std::max_element(y.begin(), y.end()) + 0.5;
+	ax->ylim({ ylim_min, ylim_max });
+	title("Signal");
+	xlabel("Time");
+	ylabel("Amplitude");
+	show();
+}
+
+void display_data_from_python(const vector<double>& v,int samplerate) {
+	auto x = linspace(0, plot_x_size, samplerate);
+	plot_function(x, v);
+}
+
 void create_signal_for_dft(double amplitude, double frequency)
 {
 	double duration = 2 * pi;
@@ -132,72 +152,40 @@ void create_signal_for_dft(double amplitude, double frequency)
 	dft(signal, time, sampling_rate);
 }
 
-void square_wave(double amplitude, double frequency) {
-
-
-	auto X = linspace(0, plot_x_size, samples);
-	std::vector<std::vector<double>> Y(2);
-	Y[0] = transform(X, [frequency](double x) { return sin(2 * pi * frequency * x); });
+void square_wave(const double amplitude, double frequency) {
+	const auto x = linspace(0, plot_x_size, samples);
+	auto y = transform(x, [frequency](double x) { return sin(2 * pi * frequency * x); });
 
 
 	// Modify Y to create a square wave
-	for (size_t i = 0; i < Y[0].size(); ++i) {
-		Y[0][i] = (Y[0][i] > 0) ? amplitude : -1.0 * amplitude;  // Assuming amplitude of 1
+	for (size_t i = 0; i < y.size(); ++i) {
+		y[i] = (y[i] > 0) ? amplitude : -1.0 * amplitude;  // Assuming amplitude of 1
 	}
 
-	figure();
-	stairs(X, Y);  // Plot the square wave
-
-	// Adjust y-axis limits to provide space between the wave and the edges of the plot
-	auto ax = gca();
-	double ylim_min = *std::min_element(Y[0].begin(), Y[0].end()) - 0.5;
-	double ylim_max = *std::max_element(Y[0].begin(), Y[0].end()) + 0.5;
-	ax->ylim({ ylim_min, ylim_max });
-
-	show();
+	plot_function(x, y);
 }
 
 void sawtooth_wave(double amplitude, double frequency)
 {
-	auto X = linspace(0, plot_x_size, samples);
-	auto Y = transform(X, [frequency, amplitude](double x) { return amplitude * (2 * (x * frequency - floor(1 / 2 + x * frequency)) - 1); });
-	plot(X, Y);
-
-	auto ax = gca();
-	double ylim_min = *std::min_element(Y.begin(), Y.end()) - 0.5;
-	double ylim_max = *std::max_element(Y.begin(), Y.end()) + 0.5;
-	ax->ylim({ ylim_min, ylim_max });
-
-	show();
+	const auto x = linspace(0, plot_x_size, samples);
+	const auto y = transform(x, [frequency, amplitude](const double x) { return amplitude * (2 * (x * frequency - floor(1 / 2 + x * frequency)) - 1); });
+	plot_function(x, y);
 
 }
 
 void sin_wave(double amplitude, double frequency)
 {
-	auto X = linspace(0, plot_x_size, samples);
-	auto Y = transform(X, [frequency, amplitude](double x) { return amplitude * sin(2 * pi * frequency * x); });
-	plot(X, Y);
-
-	auto ax = gca();
-	double ylim_min = *std::min_element(Y.begin(), Y.end()) - 0.5;
-	double ylim_max = *std::max_element(Y.begin(), Y.end()) + 0.5;
-	ax->ylim({ ylim_min, ylim_max });
-
-	show();
+	const auto x = linspace(0, plot_x_size, samples);
+	const auto y = transform(x, [frequency, amplitude](const double x) { return amplitude * sin(2 * pi * frequency * x); });
+	plot_function(x, y);
 }
 
 void cos_wave(double amplitude, double frequency)
 {
-	auto X = linspace(0, plot_x_size, samples);
-	auto Y = transform(X, [frequency, amplitude](double x) { return amplitude * cos(2 * pi * frequency * x); });
-	plot(X, Y);
+	const auto x = linspace(0, plot_x_size, samples);
+	const auto y = transform(x, [frequency, amplitude](double x) { return amplitude * cos(2 * pi * frequency * x); });
+	plot_function(x, y);
 
-	auto ax = gca();
-	double ylim_min = *std::min_element(Y.begin(), Y.end()) - 0.5;
-	double ylim_max = *std::max_element(Y.begin(), Y.end()) + 0.5;
-	ax->ylim({ ylim_min, ylim_max });
-
-	show();
 }
 
 PYBIND11_MODULE(Signal, m)
@@ -209,4 +197,6 @@ PYBIND11_MODULE(Signal, m)
 	m.def("sin_wave", &sin_wave, "Plots sin wave signal");
 	m.def("cos_wave", &cos_wave, "Plots cos wave signal");
 	m.def("peak", &random_signal, "Plots cos wave signal");
+	m.def("load_vector", &display_data_from_python, "Loading data from python numpy array to c++ vector");
+	
 }
