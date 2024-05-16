@@ -9,7 +9,7 @@ samplerate, data = wavfile.read('Classical.wav')
 #s.sin_wave(1.0, 4.0)
 #lista = [1.0,2.1,1.0,2.1,1.0,2.1,1.0,2.1,0.0]
 left_channel=[]
-for i in range(0,48000):
-    left_channel.append(data[i][0])
+#for i in range(0,10000):
+#    left_channel.append(data[i][0])
 
-sgn.load_vector(left_channel,samplerate)
+#sgn.load_vector(left_channel,samplerate)

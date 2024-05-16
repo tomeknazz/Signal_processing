@@ -5,7 +5,6 @@
 #include <complex>
 #include <vector>
 #include <iostream>
-#include <random>
 
 using namespace std;
 using namespace matplot;
@@ -16,7 +15,9 @@ constexpr int samples = 6000;
 void peak_in_signal(const vector<double>& signal)
 {
 	double peak_value = signal[0];
+	double trough_value = signal[0]; 
 	size_t peak_index = 0;
+	size_t trough_index = 0; 
 	for (size_t i = 1; i < signal.size(); ++i)
 	{
 		if (signal[i] > peak_value)
@@ -24,30 +25,29 @@ void peak_in_signal(const vector<double>& signal)
 			peak_value = signal[i];
 			peak_index = i;
 		}
+		else if (signal[i] < trough_value) 
+		{
+			trough_value = signal[i];
+			trough_index = i;
+		}
 	}
-	cout << "peak value is :" << peak_value << endl;
+	cout << "Peak value is: " << peak_value << " at time: " << peak_index / (samples / (2 * pi)) << endl;
+	cout << "Trough value is: " << trough_value << " at time: " << trough_index / (samples / (2 * pi)) << endl;
 }
 
 void random_signal()
 {
 	srand(time(NULL));
-	double amplitude = rand() % 1000 + 1;
-	double duration = 2 * pi;
-	double sampling_rate = samples / duration;
-
-	random_device rd;
-	mt19937 gen(rd());
-	normal_distribution<> distribution(0, 1); // Szum
+	double amplitude = rand() % 1500 + 1; 
 	vector<double> time(samples);
 	vector<double> signal(samples);
 
 	for (int i = 0; i < samples; ++i)
 	{
-		time[i] = i / sampling_rate;
-		signal[i] = distribution(gen) * amplitude;
+		time[i] = i * (2 * pi) / samples;
+		signal[i] = (static_cast<double>(rand()) / RAND_MAX - 0.5) * amplitude * (rand() % 849 + 2);
 	}
 	plot(time, signal);
-	show();
 	peak_in_signal(signal);
 }
 
@@ -71,7 +71,6 @@ void inverse_dft(const vector<complex<double>>& spectrum, vector<double> time)
 	title("Inverse DFT Signal");
 	xlabel("Time");
 	ylabel("Amplitude");
-	show();
 }
 
 void dft(const vector<double>& signal, const vector<double>& time, double sampling_rate)
@@ -79,7 +78,6 @@ void dft(const vector<double>& signal, const vector<double>& time, double sampli
 	using namespace matplot;
 	using namespace std;
 	int N = signal.size();
-
 	vector<complex<double>> dft_result;
 	for (int k = 0; k < N; ++k)
 	{
@@ -108,7 +106,6 @@ void dft(const vector<double>& signal, const vector<double>& time, double sampli
 	title("DFT Results");
 	xlabel("Frequency (Hz)");
 	ylabel("Magnitude");
-	show();
 	inverse_dft(dft_result, time);
 }
 
@@ -156,8 +153,6 @@ void square_wave(const double amplitude, double frequency) {
 	const auto x = linspace(0, plot_x_size, samples);
 	auto y = transform(x, [frequency](double x) { return sin(2 * pi * frequency * x); });
 
-
-	// Modify Y to create a square wave
 	for (size_t i = 0; i < y.size(); ++i) {
 		y[i] = (y[i] > 0) ? amplitude : -1.0 * amplitude;  // Assuming amplitude of 1
 	}
@@ -170,7 +165,6 @@ void sawtooth_wave(double amplitude, double frequency)
 	const auto x = linspace(0, plot_x_size, samples);
 	const auto y = transform(x, [frequency, amplitude](const double x) { return amplitude * (2 * (x * frequency - floor(1 / 2 + x * frequency)) - 1); });
 	plot_function(x, y);
-
 }
 
 void sin_wave(double amplitude, double frequency)
@@ -196,7 +190,6 @@ PYBIND11_MODULE(Signal, m)
 	m.def("sawtooth_wave", &sawtooth_wave, "Plots sawtooth wave signal");
 	m.def("sin_wave", &sin_wave, "Plots sin wave signal");
 	m.def("cos_wave", &cos_wave, "Plots cos wave signal");
-	m.def("peak", &random_signal, "Plots cos wave signal");
+	m.def("Peak", &random_signal, "Finds peak signal in random signal");
 	m.def("load_vector", &display_data_from_python, "Loading data from python numpy array to c++ vector");
-	
 }
