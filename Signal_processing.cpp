@@ -15,9 +15,9 @@ constexpr int samples = 6000;
 void peak_in_signal(const vector<double>& signal)
 {
 	double peak_value = signal[0];
-	double trough_value = signal[0]; 
+	double trough_value = signal[0];
 	size_t peak_index = 0;
-	size_t trough_index = 0; 
+	size_t trough_index = 0;
 	for (size_t i = 1; i < signal.size(); ++i)
 	{
 		if (signal[i] > peak_value)
@@ -25,7 +25,7 @@ void peak_in_signal(const vector<double>& signal)
 			peak_value = signal[i];
 			peak_index = i;
 		}
-		else if (signal[i] < trough_value) 
+		else if (signal[i] < trough_value)
 		{
 			trough_value = signal[i];
 			trough_index = i;
@@ -33,12 +33,13 @@ void peak_in_signal(const vector<double>& signal)
 	}
 	cout << "Peak value is: " << peak_value << " at time: " << peak_index / (samples / (2 * pi)) << endl;
 	cout << "Trough value is: " << trough_value << " at time: " << trough_index / (samples / (2 * pi)) << endl;
+	cin.get();
 }
 
 void random_signal()
 {
 	srand(time(NULL));
-	double amplitude = rand() % 1500 + 1; 
+	double amplitude = rand() % 1500 + 1;
 	vector<double> time(samples);
 	vector<double> signal(samples);
 
@@ -51,7 +52,7 @@ void random_signal()
 	peak_in_signal(signal);
 }
 
-void inverse_dft(const vector<complex<double>>& spectrum, vector<double> time)
+void inverse_dft(const vector<complex<double>>& spectrum, const vector<double>& time)
 {
 	int N = spectrum.size();
 	vector<double> signal;
@@ -71,9 +72,10 @@ void inverse_dft(const vector<complex<double>>& spectrum, vector<double> time)
 	title("Inverse DFT Signal");
 	xlabel("Time");
 	ylabel("Amplitude");
+	show();
 }
 
-void dft(const vector<double>& signal, const vector<double>& time, double sampling_rate)
+void dft(const vector<double>& signal, const vector<double>& time, const double sampling_rate)
 {
 	using namespace matplot;
 	using namespace std;
@@ -123,15 +125,15 @@ void plot_function(const vector<double>& x, const vector<double>& y)
 	show();
 }
 
-void display_data_from_python(const vector<double>& v,int samplerate) {
+void display_data_from_python(const vector<double>& v, const int samplerate) {
 	auto x = linspace(0, plot_x_size, samplerate);
 	plot_function(x, v);
 }
 
-void create_signal_for_dft(double amplitude, double frequency)
+void create_signal_for_dft(const double amplitude, const double frequency)
 {
-	double duration = 2 * pi;
-	double sampling_rate = samples / duration;
+	constexpr double duration = 2 * pi;
+	constexpr double sampling_rate = samples / duration;
 
 	vector<double> time;
 	for (int i = 0; i < samples; ++i)
@@ -142,8 +144,8 @@ void create_signal_for_dft(double amplitude, double frequency)
 	vector<double> signal;
 	for (int i = 0; i < time.size(); ++i)
 	{
-		double t = time[i];
-		signal.push_back(amplitude * cos(2 * pi * frequency * t));
+		const double t = time[i];
+		signal.push_back(amplitude * cos(2 * pi * frequency * t)+5*amplitude*sin(2*pi*5*frequency*t));
 	}
 
 	dft(signal, time, sampling_rate);
@@ -151,7 +153,7 @@ void create_signal_for_dft(double amplitude, double frequency)
 
 void square_wave(const double amplitude, double frequency) {
 	const auto x = linspace(0, plot_x_size, samples);
-	auto y = transform(x, [frequency](double x) { return sin(2 * pi * frequency * x); });
+	auto y = transform(x, [frequency](const double x) { return sin(2 * pi * frequency * x); });
 
 	for (size_t i = 0; i < y.size(); ++i) {
 		y[i] = (y[i] > 0) ? amplitude : -1.0 * amplitude;  // Assuming amplitude of 1
@@ -177,9 +179,8 @@ void sin_wave(double amplitude, double frequency)
 void cos_wave(double amplitude, double frequency)
 {
 	const auto x = linspace(0, plot_x_size, samples);
-	const auto y = transform(x, [frequency, amplitude](double x) { return amplitude * cos(2 * pi * frequency * x); });
+	const auto y = transform(x, [frequency, amplitude](const double x) { return amplitude * cos(2 * pi * frequency * x); });
 	plot_function(x, y);
-
 }
 
 PYBIND11_MODULE(Signal, m)
@@ -190,6 +191,6 @@ PYBIND11_MODULE(Signal, m)
 	m.def("sawtooth_wave", &sawtooth_wave, "Plots sawtooth wave signal");
 	m.def("sin_wave", &sin_wave, "Plots sin wave signal");
 	m.def("cos_wave", &cos_wave, "Plots cos wave signal");
-	m.def("Peak", &random_signal, "Finds peak signal in random signal");
+	m.def("peak", &random_signal, "Finds peak signal in random signal");
 	m.def("load_vector", &display_data_from_python, "Loading data from python numpy array to c++ vector");
 }

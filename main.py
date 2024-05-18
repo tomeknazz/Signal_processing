@@ -1,15 +1,66 @@
 import sys
+
 from scipy.io import wavfile
-import numpy as np
+
 sys.path.append('out/build/x64-debug')
 import Signal as sgn
-samplerate, data = wavfile.read('Classical.wav')
-#sgn.square_wave(1.0, 4.0)
-#sgn.DFT(100.0, 1000.0)
-#s.sin_wave(1.0, 4.0)
-#lista = [1.0,2.1,1.0,2.1,1.0,2.1,1.0,2.1,0.0]
-left_channel=[]
-#for i in range(0,10000):
-#    left_channel.append(data[i][0])
 
-#sgn.load_vector(left_channel,samplerate)
+
+def ascii_art():
+    print("""
+     _____ _                   _______                            _             
+    /  ___(_)                 | | ___ \                          (_)            
+    \ `--. _  __ _ _ __   __ _| | |_/ / __ ___   ___ ___  ___ ___ _ _ __   __ _ 
+     `--. \ |/ _` | '_ \ / _` | |  __/ '__/ _ \ / __/ _ \/ __/ __| | '_ \ / _` |
+    /\__/ / | (_| | | | | (_| | | |  | | | (_) | (_|  __/\__ \__ \ | | | | (_| |
+    \____/|_|\__, |_| |_|\__,_|_\_|  |_|  \___/ \___\___||___/___/_|_| |_|\__, |
+              __/ |                                                        __/ |
+             |___/                                                        |___/ 
+    """)
+
+
+def load_wav(samples, filename="Classical.wav"):
+    samplerate, data = wavfile.read(filename)
+    left_channel = []
+    for i in range(0, samples):
+        left_channel.append(data[i][0])
+    sgn.load_vector(left_channel, samplerate)
+
+
+def menu():
+    while True:
+        print("1. Visualise .wav file")
+        print("2. Visualise sine wave")
+        print("3. Visualise cosine wave")
+        print("4. Visualise square wave")
+        print("5. Visualise sawtooth wave")
+        print("6. Generate random signal and find peak value")
+        print("7. Discrete Fourier Transform")
+        print("8. Exit")
+
+        option = int(input("Option: "))
+        if 1 <= option <= 8:
+            return option
+        else:
+            print("Invalid option")
+
+
+ascii_art()
+while True:
+    match menu():
+        case 1:
+            load_wav(int(input("Number of samples: ")))
+        case 2:
+            sgn.sin_wave(float(input("Amplitude: ")), float(input("Frequency: ")))
+        case 3:
+            sgn.cos_wave(float(input("Amplitude: ")), float(input("Frequency: ")))
+        case 4:
+            sgn.square_wave(float(input("Amplitude: ")), float(input("Frequency: ")))
+        case 5:
+            sgn.sawtooth_wave(float(input("Amplitude: ")), float(input("Frequency: ")))
+        case 6:
+            sgn.peak()
+        case 7:
+            sgn.DFT(float(input("Amplitude: ")), float(input("Frequency: ")))
+        case 8:
+            exit(0)
