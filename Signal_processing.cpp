@@ -12,44 +12,84 @@ using namespace matplot;
 constexpr double plot_x_size = 3.0;
 constexpr int samples = 6000;
 
-void peak_in_signal(const vector<double>& signal)
+void peak_in_signal(const vector<double>& signal, double amplitude) 
 {
-	double peak_value = signal[0];
-	double trough_value = signal[0];
-	size_t peak_index = 0;
-	size_t trough_index = 0;
-	for (size_t i = 1; i < signal.size(); ++i)
+	vector<size_t> peak_indices;
+	vector<double> peak_values;
+	vector<size_t> trough_indices;
+	vector<double> trough_values;
+
+	for (size_t i = 1; i < signal.size() - 1; ++i) 
 	{
-		if (signal[i] > peak_value)
+		if (signal[i] > signal[i - 1] && signal[i] > signal[i + 1] && signal[i] > amplitude) 
 		{
-			peak_value = signal[i];
-			peak_index = i;
+			peak_indices.push_back(i);
+			peak_values.push_back(signal[i]);
 		}
-		else if (signal[i] < trough_value)
+		if (signal[i] < signal[i - 1] && signal[i] < signal[i + 1] && signal[i] < -amplitude) 
 		{
-			trough_value = signal[i];
-			trough_index = i;
+			trough_indices.push_back(i);
+			trough_values.push_back(signal[i]);
 		}
 	}
-	cout << "Peak value is: " << peak_value << " at time: " << peak_index / (samples / (2 * pi)) << endl;
-	cout << "Trough value is: " << trough_value << " at time: " << trough_index / (samples / (2 * pi)) << endl;
+
+	if (!peak_indices.empty())
+	{
+		cout << "Peaks found:" << endl;
+		for (size_t i = 0; i < peak_indices.size(); ++i) 
+		{
+			cout << "Peak value: " << peak_values[i] << " at index: " << peak_indices[i] << " (time: " << peak_indices[i] / (samples / (2 * pi)) << ")" << endl;
+		}
+	}
+	else 
+	{
+		cout << "No peaks found." << endl;
+	}
+
+	if (!trough_indices.empty()) 
+	{
+		cout << "Troughs found:" << endl;
+		for (size_t i = 0; i < trough_indices.size(); ++i) 
+		{
+			cout << "Trough value: " << trough_values[i] << " at index: " << trough_indices[i] << " (time: " << trough_indices[i] / (samples / (2 * pi)) << ")" << endl;
+		}
+	}
+	else 
+	{
+		cout << "No troughs found." << std::endl;
+	}
 	cin.get();
 }
 
-void random_signal()
+void random_signal_with_peaks()
 {
-	srand(time(NULL));
-	double amplitude = rand() % 1500 + 1;
-	vector<double> time(samples);
-	vector<double> signal(samples);
+	constexpr double duration = 2 * pi;
+	constexpr double sampling_rate = samples / duration;
+	const double amplitude = rand() % 20 + 1;
+	const double frequency = rand() % 4 + 0.25;
 
+	vector<double> time;
 	for (int i = 0; i < samples; ++i)
 	{
-		time[i] = i * (2 * pi) / samples;
-		signal[i] = (static_cast<double>(rand()) / RAND_MAX - 0.5) * amplitude * (rand() % 849 + 2);
+		time.push_back(i / sampling_rate);
+	}
+
+	vector<double> signal;
+	for (int i = 0; i < time.size(); ++i)
+	{
+		const double t = time[i];
+		signal.push_back(amplitude * sin(2 * pi * frequency * t));
+	}
+
+	int num_peaks = rand() % 5 + 1;
+	for (int i = 0; i < num_peaks; ++i) 
+	{
+		double peak_position = rand() % samples;
+		double peak_magnitude = amplitude * num_peaks;
+		signal[peak_position] += peak_magnitude;
 	}
 	plot(time, signal);
-	peak_in_signal(signal);
+	peak_in_signal(signal, amplitude);
 }
 
 void inverse_dft(const vector<complex<double>>& spectrum, const vector<double>& time)
@@ -191,6 +231,6 @@ PYBIND11_MODULE(Signal, m)
 	m.def("sawtooth_wave", &sawtooth_wave, "Plots sawtooth wave signal");
 	m.def("sin_wave", &sin_wave, "Plots sin wave signal");
 	m.def("cos_wave", &cos_wave, "Plots cos wave signal");
-	m.def("peak", &random_signal, "Finds peak signal in random signal");
+	m.def("peak", &random_signal_with_peaks, "Finds peak signal in random signal");
 	m.def("load_vector", &display_data_from_python, "Loading data from python numpy array to c++ vector");
 }
