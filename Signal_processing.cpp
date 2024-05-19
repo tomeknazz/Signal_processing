@@ -56,7 +56,7 @@ void peak_in_signal(const vector<double>& signal, double amplitude)
 	}
 	else 
 	{
-		cout << "No troughs found." << std::endl;
+		cout << "No troughs found." << endl;
 	}
 	cin.get();
 }
