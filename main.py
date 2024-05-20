@@ -1,22 +1,7 @@
 import sys
-
 from scipy.io import wavfile
-
 sys.path.append('out/build/x64-debug')
 import Signal as sgn
-
-
-def ascii_art():
-    print("""
-     _____ _                   _______                            _             
-    /  ___(_)                 | | ___ \                          (_)            
-    \ `--. _  __ _ _ __   __ _| | |_/ / __ ___   ___ ___  ___ ___ _ _ __   __ _ 
-     `--. \ |/ _` | '_ \ / _` | |  __/ '__/ _ \ / __/ _ \/ __/ __| | '_ \ / _` |
-    /\__/ / | (_| | | | | (_| | | |  | | | (_) | (_|  __/\__ \__ \ | | | | (_| |
-    \____/|_|\__, |_| |_|\__,_|_\_|  |_|  \___/ \___\___||___/___/_|_| |_|\__, |
-              __/ |                                                        __/ |
-             |___/                                                        |___/ 
-    """)
 
 
 def load_wav(samples, filename="Classical.wav"):
@@ -45,7 +30,6 @@ def menu():
             print("Invalid option")
 
 
-ascii_art()
 while True:
     match menu():
         case 1:
