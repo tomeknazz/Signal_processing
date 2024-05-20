@@ -12,7 +12,7 @@ using namespace matplot;
 constexpr double plot_x_size = 3.0;
 constexpr int samples = 6000;
 
-void peak_in_signal(const vector<double>& signal, double amplitude) 
+void peak_in_signal(const vector<double>& signal, const double amplitude) 
 {
 	vector<size_t> peak_indices;
 	vector<double> peak_values;
@@ -81,11 +81,11 @@ void random_signal_with_peaks()
 		signal.push_back(amplitude * sin(2 * pi * frequency * t));
 	}
 
-	int num_peaks = rand() % 5 + 1;
+	const int num_peaks = rand() % 5 + 1;
 	for (int i = 0; i < num_peaks; ++i) 
 	{
-		double peak_position = rand() % samples;
-		double peak_magnitude = amplitude * num_peaks;
+		const double peak_position = rand() % samples;
+		const double peak_magnitude = amplitude * num_peaks;
 		signal[peak_position] += peak_magnitude;
 	}
 	plot(time, signal);
@@ -94,7 +94,7 @@ void random_signal_with_peaks()
 
 void inverse_dft(const vector<complex<double>>& spectrum, const vector<double>& time)
 {
-	int N = spectrum.size();
+	const int N = spectrum.size();
 	vector<double> signal;
 	signal.resize(N);
 
@@ -119,7 +119,7 @@ void dft(const vector<double>& signal, const vector<double>& time, const double 
 {
 	using namespace matplot;
 	using namespace std;
-	int N = signal.size();
+	const int N = signal.size();
 	vector<complex<double>> dft_result;
 	for (int k = 0; k < N; ++k)
 	{
@@ -155,9 +155,9 @@ void plot_function(const vector<double>& x, const vector<double>& y)
 {
 	figure();
 	plot(x, y);
-	auto ax = gca();
-	double ylim_min = *std::min_element(y.begin(), y.end()) - 0.5;
-	double ylim_max = *std::max_element(y.begin(), y.end()) + 0.5;
+	const auto ax = gca();
+	const double ylim_min = *std::min_element(y.begin(), y.end()) - 0.5;
+	const double ylim_max = *std::max_element(y.begin(), y.end()) + 0.5;
 	ax->ylim({ ylim_min, ylim_max });
 	title("Signal");
 	xlabel("Time");
@@ -166,7 +166,7 @@ void plot_function(const vector<double>& x, const vector<double>& y)
 }
 
 void display_data_from_python(const vector<double>& v, const int samplerate) {
-	auto x = linspace(0, plot_x_size, samplerate);
+	const auto x = linspace(0, plot_x_size, samplerate);
 	plot_function(x, v);
 }
 
